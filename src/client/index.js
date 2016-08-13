@@ -4,18 +4,38 @@ import { createStore, applyMiddleware } from 'redux';
 import promiseMiddleware from 'redux-promise';
 import { Provider } from 'react-redux';
 
-import rootReducer from './reducers';
-import App from './components/App';
+import io from 'socket.io-client';
+import feathers from 'feathers/client';
+import fSocketio from 'feathers-socketio/client';
+import fHooks from 'feathers-hooks';
+import fAuthentication from 'feathers-authentication/client';
 
+import rootReducer from './reducers';
+import FeathersApp from './components/FeathersApp';
+import MessageListContainer from './containers/MessageListContainer';
+
+// Feathers Init
+const socket = io('http://localhost:3030');
+const app = feathers()
+  .configure(fSocketio(socket))
+  .configure(fHooks())
+  .configure(fAuthentication({
+    storage: window.localStorage,
+  }));
+
+// React-Redux Init
 const createStoreWithMiddleware = applyMiddleware(
   promiseMiddleware
 )(createStore);
 
 const store = createStoreWithMiddleware(rootReducer);
 
-render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('app')
-);
+app.authenticate().then(() => {
+  render(
+    <Provider store={store}>
+      <FeathersApp app={app}>
+        <MessageListContainer />
+      </FeathersApp>
+    </Provider>,
+    document.getElementById('app'));
+});
