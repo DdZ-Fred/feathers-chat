@@ -12,7 +12,8 @@ import fAuthentication from 'feathers-authentication/client';
 
 import rootReducer from './reducers';
 import FeathersApp from './components/FeathersApp';
-import MessageListContainer from './containers/MessageListContainer';
+// import MessageListContainer from './containers/MessageListContainer';
+import MessageList from './components/MessageList';
 
 // Feathers Init
 const socket = io('http://localhost:3030');
@@ -34,7 +35,7 @@ app.authenticate().then(() => {
   render(
     <Provider store={store}>
       <FeathersApp app={app}>
-        <MessageListContainer />
+        <MessageList />
       </FeathersApp>
     </Provider>,
     document.getElementById('app'));

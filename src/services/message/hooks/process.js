@@ -13,7 +13,7 @@ module.exports = function (options) {
   return function (hook) {
   // Authenticated user info
     const { user } = hook.params;
-    const text = hook.data
+    const text = hook.data.text
       .substring(0, 400)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
