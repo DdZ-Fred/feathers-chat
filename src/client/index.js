@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import promiseMiddleware from 'redux-promise';
 import { Provider } from 'react-redux';
-
+// Feathers Deps
 import io from 'socket.io-client';
 import feathers from 'feathers/client';
 import fSocketio from 'feathers-socketio/client';
@@ -12,7 +12,6 @@ import fAuthentication from 'feathers-authentication/client';
 
 import rootReducer from './reducers';
 import FeathersApp from './components/FeathersApp';
-// import MessageListContainer from './containers/MessageListContainer';
 import MessageList from './components/MessageList';
 
 // Feathers Init

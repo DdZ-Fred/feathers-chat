@@ -95,9 +95,9 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// Feathers Init
-	var socket = (0, _socket2.default)('http://localhost:3030');
-	// import MessageListContainer from './containers/MessageListContainer';
 
+	// Feathers Deps
+	var socket = (0, _socket2.default)('http://localhost:3030');
 	var app = (0, _client2.default)().configure((0, _client4.default)(socket)).configure((0, _feathersHooks2.default)()).configure((0, _client6.default)({
 	  storage: window.localStorage
 	}));
@@ -37891,24 +37891,35 @@
 	  var action = arguments[1];
 
 	  switch (action.type) {
-	    case _creatorsMessages.FETCH_MESSAGES:
+	    case _actionsMessages.FETCH_MESSAGES:
 	      {
 	        return action.payload.data;
 	      }
-	    case _creatorsMessages.CREATE_MESSAGE:
-	      {
-	        console.log('CREATE_MESSAGE received', action.payload);
-	        // As the payload was a Promise and was resolved by redux-promise middleware
-	        return [action.payload].concat(_toConsumableArray(state));
-	      }
-	    case _creatorsMessages.ADD_MESSAGE:
+	    case _actionsMessages.CREATE_MESSAGE:
 	      {
 	        // payload has been a simple object the whole time
 	        return [action.payload].concat(_toConsumableArray(state));
 	      }
-	    case _creatorsMessages.REMOVE_MESSAGE:
+	    case _actionsMessages.UPDATE_MESSAGE:
 	      {
-	        return [];
+	        console.log(_actionsMessages.UPDATE_MESSAGE + ' received', action.payload);
+	        // Find target message in state
+	        // Replace it
+	        return state;
+	      }
+	    case _actionsMessages.PATCH_MESSAGE:
+	      {
+	        console.log(_actionsMessages.PATCH_MESSAGE + ' received', action.payload);
+	        // Find target message in state
+	        // Replace it
+	        return state;
+	      }
+	    case _actionsMessages.REMOVE_MESSAGE:
+	      {
+	        console.log(_actionsMessages.REMOVE_MESSAGE + ' received', action.payload);
+	        // Find target message in state
+	        // Remove it
+	        return state;
 	      }
 	    default:
 	      {
@@ -37917,7 +37928,7 @@
 	  }
 	};
 
-	var _creatorsMessages = __webpack_require__(337);
+	var _actionsMessages = __webpack_require__(337);
 
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -37932,11 +37943,17 @@
 	});
 	exports.fetchMessages = fetchMessages;
 	exports.createMessage = createMessage;
-	exports.addMessage = addMessage;
+	exports.updateMessage = updateMessage;
+	exports.patchMessage = patchMessage;
 	exports.removeMessage = removeMessage;
 	var FETCH_MESSAGES = exports.FETCH_MESSAGES = 'FETCH_MESSAGES';
 	var CREATE_MESSAGE = exports.CREATE_MESSAGE = 'CREATE_MESSAGE';
-	var ADD_MESSAGE = exports.ADD_MESSAGE = 'ADD_MESSAGE';
+	// UPDATE IS TO BE USED WHEN A RESOURCE NEEDS TO BE REPLACE
+	// (takes the complete updated resource)
+	var UPDATE_MESSAGE = exports.UPDATE_MESSAGE = 'UPDATE_MESSAGE';
+	// PATCH IS TO BE USED WHEN A RESOURCE NEEDS TO BE PATCHE
+	// (is a partial update, data passed in merged)
+	var PATCH_MESSAGE = exports.PATCH_MESSAGE = 'PATCH_MESSAGE';
 	var REMOVE_MESSAGE = exports.REMOVE_MESSAGE = 'REMOVE_MESSAGE';
 
 	function fetchMessages(messageService) {
@@ -37947,29 +37964,35 @@
 	  };
 	}
 
-	function createMessage(message, messageService) {
-	  console.log('createMessage action sent!');
-	  return {
-	    type: CREATE_MESSAGE,
-	    payload: messageService.create(message)
-	  };
-	}
-
 	/**
-	 * ADD TO STATE AN ALREADY CREATED MESSAGE.
+	 * ADD TO STATE A PREVIOUSLY CREATED MESSAGE.
 	 * THE MESSAGE OBJECT IS RECEIVED BY THE SERVICE LISTENER
 	 */
-	function addMessage(message) {
+	function createMessage(message) {
 	  return {
-	    type: ADD_MESSAGE,
+	    type: CREATE_MESSAGE,
 	    payload: message
 	  };
 	}
 
-	function removeMessage(id, messageService) {
+	function updateMessage(updatedMessage) {
+	  return {
+	    type: UPDATE_MESSAGE,
+	    payload: updatedMessage
+	  };
+	}
+
+	function patchMessage(patchedMessage) {
+	  return {
+	    type: PATCH_MESSAGE,
+	    payload: patchedMessage
+	  };
+	}
+
+	function removeMessage(removedMessage) {
 	  return {
 	    type: REMOVE_MESSAGE,
-	    payload: messageService.remove(id)
+	    payload: removedMessage
 	  };
 	}
 
@@ -38060,9 +38083,13 @@
 
 	var _reduxForm = __webpack_require__(288);
 
-	var _creatorsMessages = __webpack_require__(337);
+	var _actionsMessages = __webpack_require__(337);
 
-	var _Message = __webpack_require__(340);
+	var _listenersMessages = __webpack_require__(340);
+
+	var _listenersMessages2 = _interopRequireDefault(_listenersMessages);
+
+	var _Message = __webpack_require__(341);
 
 	var _Message2 = _interopRequireDefault(_Message);
 
@@ -38080,10 +38107,7 @@
 
 	var propTypes = {
 	  messages: _react.PropTypes.array.isRequired,
-	  fetchMessages: _react.PropTypes.func.isRequired,
-	  createMessage: _react.PropTypes.func.isRequired,
-	  addMessage: _react.PropTypes.func.isRequired,
-	  removeMessage: _react.PropTypes.func.isRequired
+	  fetchMessages: _react.PropTypes.func.isRequired
 	};
 
 	var MessageList = function (_React$Component) {
@@ -38105,20 +38129,16 @@
 	  _createClass(MessageList, [{
 	    key: 'componentWillMount',
 	    value: function componentWillMount() {
-	      var _this2 = this;
-
 	      this.messageService = this.context.feathers.service('messages');
 	      console.log('MessageList is about to render');
 	      this.props.fetchMessages(this.messageService);
-	      this.messageService.on('created', function (message) {
-	        return _this2.props.addMessage(message);
-	      });
+
+	      (0, _listenersMessages2.default)(this.messageService, this.props.dispatch);
 	    }
 	  }, {
 	    key: 'handleCreateMessage',
 	    value: function handleCreateMessage(values) {
 	      console.log('VALUES', values);
-	      // this.props.createMessage(values, this.messageService);
 	      this.messageService.create(values);
 	    }
 	  }, {
@@ -38131,8 +38151,8 @@
 	          'No message yet'
 	        );
 	      }
-	      return this.props.messages.map(function (message, idx) {
-	        return _react2.default.createElement(_Message2.default, { key: idx, message: message });
+	      return this.props.messages.map(function (message) {
+	        return _react2.default.createElement(_Message2.default, { key: message._id, message: message });
 	      });
 	    }
 	  }, {
@@ -38194,14 +38214,38 @@
 	}
 
 	exports.default = (0, _reduxForm.reduxForm)({
-	  form: 'createMessage',
+	  form: 'createMessageForm',
 	  fields: ['text']
 	}, mapStateToProps, {
-	  fetchMessages: _creatorsMessages.fetchMessages, createMessage: _creatorsMessages.createMessage, addMessage: _creatorsMessages.addMessage, removeMessage: _creatorsMessages.removeMessage
+	  fetchMessages: _actionsMessages.fetchMessages
 	})(MessageList);
 
 /***/ },
 /* 340 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	exports.default = function (messageService, dispatch) {
+	  messageService.on('created', function (message) {
+	    return dispatch((0, _actionsMessages.createMessage)(message));
+	  }).on('updated', function (updatedMessage) {
+	    return dispatch((0, _actionsMessages.updateMessage)(updatedMessage));
+	  }).on('patched', function (patchedMessage) {
+	    return dispatch((0, _actionsMessages.patchMessage)(patchedMessage));
+	  }).on('removed', function (removedMessage) {
+	    return dispatch((0, _actionsMessages.removeMessage)(removedMessage));
+	  });
+	};
+
+	var _actionsMessages = __webpack_require__(337);
+
+/***/ },
+/* 341 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

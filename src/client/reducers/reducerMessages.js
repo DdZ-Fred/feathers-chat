@@ -1,9 +1,10 @@
 import {
   FETCH_MESSAGES,
   CREATE_MESSAGE,
-  ADD_MESSAGE,
+  UPDATE_MESSAGE,
+  PATCH_MESSAGE,
   REMOVE_MESSAGE,
-} from '../actions/creatorsMessages';
+} from '../actions/actionsMessages';
 
 export default function (state = [], action) {
   switch (action.type) {
@@ -11,24 +12,29 @@ export default function (state = [], action) {
       return action.payload.data;
     }
     case CREATE_MESSAGE: {
-      console.log('CREATE_MESSAGE received', action.payload);
-      // As the payload was a Promise and was resolved by redux-promise middleware
-      return [
-        action.payload,
-        ...state,
-      ];
-    }
-    case ADD_MESSAGE: {
       // payload has been a simple object the whole time
       return [
         action.payload,
         ...state,
       ];
     }
+    case UPDATE_MESSAGE: {
+      console.log(`${UPDATE_MESSAGE} received`, action.payload);
+      // Find target message in state
+      // Replace it
+      return state;
+    }
+    case PATCH_MESSAGE: {
+      console.log(`${PATCH_MESSAGE} received`, action.payload);
+      // Find target message in state
+      // Replace it
+      return state;
+    }
     case REMOVE_MESSAGE: {
-      return [
-
-      ];
+      console.log(`${REMOVE_MESSAGE} received`, action.payload);
+      // Find target message in state
+      // Remove it
+      return state;
     }
     default: {
       return state;

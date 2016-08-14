@@ -1,11 +1,7 @@
 import React, { PropTypes } from 'react';
 import { reduxForm } from 'redux-form';
-import {
-  fetchMessages,
-  createMessage,
-  addMessage,
-  removeMessage,
-} from '../actions/creatorsMessages';
+import { fetchMessages } from '../actions/actionsMessages';
+import initMessagesListeners from '../eventListeners/listenersMessages';
 import Message from './Message';
 
 const contextTypes = {
@@ -15,9 +11,6 @@ const contextTypes = {
 const propTypes = {
   messages: PropTypes.array.isRequired,
   fetchMessages: PropTypes.func.isRequired,
-  createMessage: PropTypes.func.isRequired,
-  addMessage: PropTypes.func.isRequired,
-  removeMessage: PropTypes.func.isRequired,
 };
 
 class MessageList extends React.Component {
@@ -36,12 +29,12 @@ class MessageList extends React.Component {
     this.messageService = this.context.feathers.service('messages');
     console.log('MessageList is about to render');
     this.props.fetchMessages(this.messageService);
-    this.messageService.on('created', message => this.props.addMessage(message));
+
+    initMessagesListeners(this.messageService, this.props.dispatch);
   }
 
   handleCreateMessage(values) {
     console.log('VALUES', values);
-    // this.props.createMessage(values, this.messageService);
     this.messageService.create(values);
   }
 
@@ -49,8 +42,8 @@ class MessageList extends React.Component {
     if (!this.props.messages.length) {
       return <li>No message yet</li>;
     }
-    return this.props.messages.map((message, idx) => (
-      <Message key={idx} message={message}/>
+    return this.props.messages.map((message) => (
+      <Message key={message._id} message={message}/>
     ));
   }
 
@@ -89,8 +82,8 @@ function mapStateToProps(state) {
 }
 
 export default reduxForm({
-  form: 'createMessage',
+  form: 'createMessageForm',
   fields: ['text'],
 }, mapStateToProps, {
-  fetchMessages, createMessage, addMessage, removeMessage,
+  fetchMessages,
 })(MessageList);
