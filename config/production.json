@@ -4,9 +4,7 @@
   "nedb": "../data/",
   "public": "../public/",
   "auth": {
-    "token": {
-      "secret": "FEATHERS_AUTH_SECRET"
-    },
+    "token": {},
     "local": {},
     "successRedirect": "/chat.html"
   }

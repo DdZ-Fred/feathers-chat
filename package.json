@@ -30,6 +30,7 @@
     "body-parser": "^1.15.2",
     "compression": "^1.6.2",
     "cors": "^2.7.1",
+    "envalid": "^2.2.0",
     "feathers": "^2.0.1",
     "feathers-authentication": "^0.7.9",
     "feathers-configuration": "^0.2.3",
@@ -49,6 +50,7 @@
     "redux-promise": "^0.5.3",
     "serve-favicon": "^2.3.0",
     "socket.io-client": "^1.4.8",
+    "throng": "^4.0.0",
     "winston": "^2.2.0"
   },
   "devDependencies": {
